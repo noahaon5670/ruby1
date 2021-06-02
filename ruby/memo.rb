@@ -13,9 +13,6 @@ class Memo
     puts "拡張子を除いたファイル名を記入してください"
   end
   
-  def edit_memo_message
-  end
-  
   def set_memotype
     isLoop = true
     while isLoop
@@ -32,25 +29,29 @@ class Memo
     puts "完了したらcontrol + dを押してください"
   end
   
+  def is_file_exist
+    return  File.exist?("#{@file_name}.csv")
+  end
+  
+  def edit_csv(char)
+    edit_message
+    memo_text = readlines(chomp:true)
+    CSV.open("#{@file_name}.csv",char) do |csv|
+      csv << memo_text
+    end
+  end
+  
   def create
-    if !(File.exist?("#{@file_name}.csv")) then
-      edit_message
-      memo_text = readlines(chomp:true)
-      CSV.open("#{@file_name}.csv","w") do |csv|
-        csv << memo_text
-      end
+    if !is_file_exist then
+      edit_csv("w")
     else
       puts "ファイル名が重複してます"
     end
   end
   
   def rewrite
-    if File.exist?("#{@file_name}.csv") then
-      edit_message
-      memo_text = readlines(chomp:true)
-      CSV.open("#{@file_name}.csv","a") do |csv|
-        csv << memo_text
-      end
+    if is_file_exist then
+      edit_csv("a")
     else
       puts "ファイル名が存在しません"
     end
@@ -58,7 +59,7 @@ class Memo
   
   def create_and_rewrite
     ask_the_filename_message
-    @file_name = gets.to_s
+    @file_name = gets.to_s.chomp
     case @memo_type
       when 1
         create
